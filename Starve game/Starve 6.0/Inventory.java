@@ -1,0 +1,69 @@
+//Inventory is where all the stuff goes
+//An array of stuff in the back pack
+
+import java.util.ArrayList;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*; 
+import java.util.Scanner;
+import java.util.Random;
+import java.awt.image.*;
+import javax.imageio.*;
+
+class Inventory extends World{
+  
+  int []items = new int[8];
+  
+  // slot 1 == wood / tree 0
+  
+  // slot 2 == stone 1
+  // slot 3 == Barries 2
+  // slot 4 == fire 3
+  // slot 5 == picaxe 4
+  // slot 6 == sword 5
+  // slot 7 == meat 6
+  // slot 8 == block 7
+  // slot 9 == door 8
+  public Inventory (){
+    items = new int[8];
+    for (int i=0; i<8; i++){
+      items[i]=0;
+    }
+    
+  }
+  
+  public void storeItem(int item){
+    
+    if (items[item] <9999){
+      items[item]++;
+    }
+      
+  }
+  
+  public int getItem (int item){
+    
+    if (item >=0 && item <= 7){//wood
+      
+      return items[item];
+      
+    }else{//when it is not 1 to 7
+      return -1;
+    }
+    
+  }
+  
+  public void consume (int item, int change){
+    if (item >=0 && item <= 7){
+      if (items[item] >= change){
+        items[item]= items[item] - change;
+      }
+    }else{//when it is not 1 to 7
+      
+    }
+  }
+  
+  public void paintItem (int item){
+    //here should be all the items painted
+  }
+}

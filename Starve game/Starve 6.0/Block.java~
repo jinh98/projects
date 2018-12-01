@@ -1,0 +1,4 @@
+class Block extends World{
+  
+  private Boolean block = true;
+}

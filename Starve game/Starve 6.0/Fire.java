@@ -1,0 +1,4 @@
+class Fire extends World{
+  
+  
+}

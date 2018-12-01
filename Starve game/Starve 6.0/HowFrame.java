@@ -1,0 +1,78 @@
+/** 
+ * How to play frame in the menu
+ **/
+
+
+//Imports
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import javax.swing.BoxLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.SwingUtilities;
+
+class HowFrame extends JFrame { 
+  
+  JFrame thisFrame;
+  
+  //Constructor - this runs first
+ HowFrame() { 
+    super("How to Play");
+    this.thisFrame = this; //lol  
+    
+    //configure the window
+    this.setSize(400,700);    
+    this.setLocationRelativeTo(null); //start the frame in the center of the screen
+    //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
+    this.setResizable (false);
+    
+    //Create a Panel for stuff
+    JPanel mainPanel = new JPanel();
+    mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.Y_AXIS));
+    
+    //Create a JButton for the centerPanel
+    
+    
+    
+    //Create a JButton for the centerPanel
+    
+    
+    //Create a JButton for the centerPanel
+    JLabel howLabel1 = new JLabel("1. Collect Resourse (Trees, Stone and Barry)");
+    JLabel howLabel2 = new JLabel("2. Buy items from store");
+    JLabel howLabel3 = new JLabel("3. Watch out for the dragon");
+    JLabel howLabel4 = new JLabel("4. Defeat it for resources");
+    JLabel howLabel5 = new JLabel("5. Try not to Die");
+    JLabel howLabel6 = new JLabel(" ");
+    JLabel howLabel7 = new JLabel("Stones are black,trees are green");
+    JLabel howLabel8 = new JLabel("No one can find this game on Steam");
+    //Add all panels to the mainPanel according to border layout
+    
+    mainPanel.add(howLabel1);
+    mainPanel.add(howLabel2);
+    mainPanel.add(howLabel3);
+    mainPanel.add(howLabel4);
+    mainPanel.add(howLabel5);
+    mainPanel.add(howLabel6);
+    mainPanel.add(howLabel7);
+    mainPanel.add(howLabel8);
+    //add the main panel to the frame
+    this.add(mainPanel);
+    
+    //Start the app
+    this.setVisible(true);
+  }
+  
+  
+  
+  
+  //Main method starts this application
+  /*public static void main(String[] args) { 
+   new StartingFrame();
+   
+   }*/
+  
+}

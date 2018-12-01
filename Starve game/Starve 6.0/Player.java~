@@ -1,0 +1,414 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*; 
+import java.util.Scanner;
+import java.util.Random;
+import java.awt.image.*;
+import javax.imageio.*;
+
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+
+
+class Player extends World{ 
+  static int xPos, yPos; 
+  // int xScr,yScr;
+  String direction;
+  BufferedImage[] sprites;
+  int currentSprite;
+  int currentStep;
+  private boolean night;
+  private int health = 200;
+  private int hunger = 200;
+  private int warm = 200;
+  private int warmTimes = 1;
+  private boolean fire = false;
+  private int attack;
+  private Clock tClock ;
+  private Clock lClock ;
+  private Clock hClock ;
+  private Clock rClock ;
+  private Clock fClock ;
+  private Clock wClock ;
+  private Clock nClock ;
+  
+  Rectangle boundingBox; //rectangle that is used for collision detection
+  Rectangle hitBox;
+  
+  Image player = Toolkit.getDefaultToolkit().getImage("player1.png");
+  Image playerH = Toolkit.getDefaultToolkit().getImage("playerHit.png");
+  Image playerHPA = Toolkit.getDefaultToolkit().getImage("playerHPA.png");
+  Image playerPA = Toolkit.getDefaultToolkit().getImage("playerPA.png");
+  Image playerF = Toolkit.getDefaultToolkit().getImage("playerF.png");
+  Image playerS = Toolkit.getDefaultToolkit().getImage("playerS.png");
+  Image playerHS = Toolkit.getDefaultToolkit().getImage("playerHS.png");
+  Image currentPlayer;
+  Boolean playerHit = false;
+  Boolean playerFire = false;
+  Boolean playerPAx = false;
+  Boolean playerSW = false;
+  
+  //int playerHeight = player.getHeight();
+  //int playerWidth = player.getWidth();
+  //contructor
+  public Player() { 
+    tClock = new Clock();
+    hClock = new Clock();
+    rClock = new Clock();
+    fClock = new Clock();
+    wClock = new Clock();
+    nClock = new Clock();
+    lClock = new Clock();
+    loadSprites();
+    currentSprite=0;
+    currentStep=0;
+    this.xPos=488;
+    this.yPos=355;
+    // this.xScr=25;
+    // this.yScr=25;
+    this.direction="stand";
+    attack = 50;
+    night = false;
+    boundingBox=new Rectangle((int)xPos, (int)yPos, 94, 88);
+    hitBox=new Rectangle((int)xPos, (int)yPos, 115, 115);
+  }
+  
+  public void loadSprites() { 
+    try {
+     // BufferedImage player = ImageIO.read(new File("player.png"));
+ 
+      BufferedImage sheet = ImageIO.read(new File("spriteSheet.png"));
+      
+      final int width = 100;
+      final int height = 135;
+      final int rows = 4;
+      final int cols = 3;
+      
+      sprites = new BufferedImage[rows * cols];
+      
+      for (int j = 0; j < rows; j++)
+        for (int i = 0; i < cols; i++)
+        sprites[(j * cols) + i] = sheet.getSubimage(i * width,j * height,width,height);
+    } catch(Exception e) { System.out.println("error loading sheet");};
+  }
+  
+ public void draw(Graphics g, int mouseX, int mouseY) {
+    Graphics2D g2d=(Graphics2D)g;
+    double x = Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2;
+    double y = Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2;
+    
+    AffineTransform rotateImage = new AffineTransform();
+    rotateImage.translate(xPos,yPos);
+    int dx = xPos+(94/2)-mouseX;
+    int dy = yPos+(88/2)-mouseY;
+    
+    rotateImage.rotate(Math.atan2(dy,dx) + Math.PI/2 ,43,43);
+  
+   
+    //rotateImage.translate(-(sprites[currentSprite].getWidth()/2), -(sprites[currentSprite].getHeight()/2));
+  // System.out.println("player Hit" + playerHit);
+    if (playerHit == false && playerFire == false && playerPAx == false && playerSW == false){
+    g2d.drawImage(player, rotateImage, null);
+    }else if (playerHit == true && playerPAx == false && playerSW == false){
+      g2d.drawImage(playerH, rotateImage,null);
+    }else if (playerFire == true){
+      g2d.drawImage(playerF, rotateImage,null);
+    }else if (playerHit == false && playerPAx == true && playerSW == false){
+      g2d.drawImage(playerPA,rotateImage,null);
+    }else if (playerHit == true && playerPAx == true && playerSW == false){
+      g2d.drawImage(playerHPA,rotateImage,null);
+    }else if (playerHit == false && playerPAx == false && playerSW == true){
+      g2d.drawImage(playerS,rotateImage,null);
+    }else if (playerHit == true && playerPAx == false && playerSW == true){
+      g2d.drawImage(playerHS,rotateImage,null);
+    }
+   //g.drawString (Sprite,50,50);
+  }
+  
+  public void update() { 
+    
+    if (currentStep>=128) {
+      currentStep=0;
+      direction="stand";
+    }
+    
+    if(direction.equals("down")) { 
+      currentSprite++;
+      currentStep++;
+      if (currentSprite>=2) {
+        currentSprite=0;
+        //direction="stand";
+      }// else
+      // yPos=yPos+1;//--;
+    }
+    
+    if(direction.equals("left")) { 
+      currentSprite++;
+      currentStep++;
+      if (currentSprite>=5) {
+        currentSprite=3;
+        //direction="stand";
+      } //else
+      //xPos=xPos-1;//--;
+    }
+    
+    if(direction.equals("right")) { 
+      currentSprite++;
+      currentStep++;
+      if (currentSprite>=8) {
+        currentSprite=6;
+        //direction="stand";
+      } //else
+      //xPos=xPos+1;//++;
+    }
+    
+    if(direction.equals("up")) { 
+      currentSprite++;
+      currentStep++;
+      if (currentSprite>=11) {
+        currentSprite=9;
+        //direction="stand";
+      } //else
+      // yPos=yPos-1;//++;
+    }
+    
+  }
+  
+  public void move(String movement) { 
+    
+    if (currentStep==0 && direction.equals("stand")) { //not moving
+      currentStep++;
+      direction=movement;
+      if(movement.equals("left")) {       
+        currentSprite=0;
+      } else if(movement.equals("up")) {
+        currentSprite=2;
+      } else if(movement.equals("right")) {
+        currentSprite=5;
+      } else if(movement.equals("down")) {
+        currentSprite=8;
+      }
+    }else {
+      // currentSprite++;
+      // if (currentSprite>=sprites.length)
+      //currentSprite=0;
+    }
+  }
+  
+  //*********************
+  
+  public void playerHit(Boolean hit){
+   this.playerHit = hit;
+  }
+  
+    
+  public void paintHealth(Graphics g){
+    g.setColor(Color.BLACK);
+    g.fillRect(10, 10, 202, 18); //draws healthbar outline
+    g.setColor(Color.RED);
+    g.fillRect(10, 10, this.health, 16); //draws health
+    g.setColor(Color.WHITE);
+    g.drawString("Health: " + this.health, 20,22);
+  }
+  
+  public void paintHunger(Graphics g){
+    g.setColor(Color.BLACK);
+    g.fillRect(10,30,202,18);
+    g.setColor(Color.ORANGE);
+    g.fillRect(10,30, this.hunger,16);
+    g.setColor(Color.WHITE);
+    g.drawString("Hunger: " + this.hunger, 20,42);
+  }
+  
+  public void paintWarm(Graphics g){
+    g.setColor(Color.BLACK);
+    g.fillRect(10,50,202,18);
+    g.setColor(Color.BLUE);
+    g.fillRect(10,50,this.warm,16);
+    g.setColor(Color.WHITE);
+    g.drawString("Warmth: " + this.warm, 20,62);
+  }
+  
+  
+  public void updateHealth(int change){
+    hClock.update();
+    //System.out.println("Health elapsed time" + hClock.getElapsedTime());
+    if (hClock.getElapsedTime() > 15.0){
+      if (hunger <= 0 && warm <= 0){
+        health = health + change;
+        health = health + change;
+        hClock.reset();
+      }else if (warm <= 0){
+        health = health + change;
+        hClock.reset();
+      }else if (hunger <= 0){
+        health = health + change;
+        hClock.reset();
+      }
+      
+    }
+    
+  }
+  
+  public void loseHealth(int change){
+    lClock.update();
+    if (lClock.getElapsedTime() > 1.0){
+      health = health - change;
+      lClock.reset();
+    }
+    if (health <0){
+      health =0;
+    }
+  }
+  public void updateHunger(int change){
+    tClock.update();
+    if (tClock.getElapsedTime() > 15.0){
+      if (hunger >= change)
+        hunger = hunger - change;
+      if (hunger <0){
+        hunger = 0;
+      }
+      tClock.reset();
+    }
+    
+  }
+  public void updateWarm(int change){
+    
+    if (fire == true){
+     // this.playerFire = true;
+      //System.out.println("player Fire" + playerFire);
+      fClock.update();
+    }
+    wClock.update();
+    if (fClock.getElapsedTime() > 60.0){
+      fClock.reset();
+      fire = false;
+      
+      warmTimes = 1;
+      System.out.println("out of fire");
+    }
+    
+    if(fire == true && warm < 200 && fClock.getElapsedTime() > warmTimes){
+        warmTimes+=2;
+        warm = warm + 10;
+        if (warm > 200)
+          warm = 200;
+      }
+    
+    if (wClock.getElapsedTime() > 10.0){
+      if (warm >= change && fire == false){
+        if (warm > 0){
+          warm = warm - change;
+          if (warm< 0){
+            warm =0;
+          }
+        }
+      }
+      
+      //System.out.println("Warm: " + warm);
+      wClock.reset();
+    }
+    
+  }
+  
+   public int nightYet(){
+    
+    nClock.update();
+    //System.out.println("Health elapsed time" + hClock.getElapsedTime());
+    if (night == false && nClock.getElapsedTime() > 100.0){
+      System.out.println("It's night Time!");
+      night = true;
+        nClock.reset();
+      }else if (night == true && nClock.getElapsedTime() > 100.0){
+      System.out.println("It's day Time!");
+      night = false;
+        nClock.reset();
+      }
+      
+      return (int)(100 - nClock.getElapsedTime());
+  }
+   public boolean isNight(){
+     return night;
+   }
+  
+  public void restoreHealth(){
+    rClock.update();
+    
+    if (health < 200 && warm > 100 && hunger > 100 && rClock.getElapsedTime() > 10.0){
+      health= health + 20;
+      if (health >200){
+        health = 200;
+      }
+      rClock.reset();
+    }
+  }
+  
+  public int getHealth(){
+    return health;
+  }
+  
+  public void eatBarry(){
+    
+    if (hunger < 200){
+      hunger = hunger + 10;
+    }
+    if (hunger > 200){
+      hunger = 200;
+    }
+  }
+  
+  public void besideFire(){
+    
+    fClock.reset();
+    if (warm <=0){
+      warm=10;
+    }
+    fire = true;
+   
+  }
+  
+  public void playerOnFire(){
+    this.playerFire = true;
+    System.out.println("player Fire "+ playerFire);
+    
+  //**********************
+}
+  public void playerNormal(){
+    this.playerFire = false;
+  }
+  
+  public void playerPA(){
+    if(this.playerPAx == false ){
+      if(this.playerSW == false){
+    this.playerPAx = true;
+      }else{
+        this.playerSW = false; 
+        this.playerPAx = true;
+      }
+    }else{
+      this.playerPAx = false;
+    }
+  }
+  
+  public void playerS(){
+    if(this.playerSW == false){
+     if(this.playerPAx == false){
+    this.playerSW = true;
+      }else{
+        this.playerPAx = false; 
+        this.playerSW = true;
+      }
+    }else{
+      this.playerSW = false;
+    }
+  }
+  
+  public Boolean playerCPA(){
+    return this.playerPAx;
+  }
+    public Boolean playerSWA(){
+    return this.playerSW;
+  }
+}
