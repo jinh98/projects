@@ -1,0 +1,113 @@
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.lang.Integer;
+
+
+
+public class FileCompressionPart1 {
+  
+    public static void main(String[] args) throws IOException {
+      
+      ArrayList <String> keyList= new ArrayList <String> ();
+      String inputFileName="HarryPotter1.txt";
+      String outputFileName="testout.txt";
+      HashMap<String, Integer> map= new HashMap<String, Integer>();
+      PriorityQueue pQueue = new PriorityQueue(256);
+      Stack nodeStack= new Stack();
+      BinaryTree <String> characterTree = new BinaryTree<String>();
+      String treeString="";
+      int bitDepth;
+      
+      // read from file
+      FileInputStream in = null;
+      String output;
+      String temp;
+      int c;
+      
+      try {
+        in = new FileInputStream(inputFileName);
+        
+        while ((c = in.read()) != -1) {
+          //System.out.println("Input Stream Begins");
+          temp= Integer.toString(c);
+          
+          if(map.containsKey(temp)){
+            map.replace(temp, Integer.valueOf((map.get(temp)).intValue()+1));// construct the hashmap as the file is read
+            
+            //System.out.println("map modified");
+          }else{
+            map.put(temp,1);
+            keyList.add(temp);
+            //System.out.println("new key made");
+          } 
+        }
+      } finally {
+        if (in != null) {
+          in.close();
+        }
+      }  
+      
+      // make and insert nodes (trees)
+      for (int i=0; i<keyList.size(); i++){
+        BinaryTree<String> tempNode=new BinaryTree<String>();
+          tempNode.addOrdered(keyList.get(i));
+        pQueue.insert(tempNode, map);
+      }
+      
+      //combine nodes
+      while (pQueue.size()>1){
+        BinaryTree <String> internalTree= new BinaryTree <String>();// make a sub tree
+        internalTree.addOrdered(null);// make a root
+        internalTree.getRoot().setRight(pQueue.remove().getRoot());// add two leaves
+        internalTree.getRoot().setLeft(pQueue.remove().getRoot());
+        pQueue.insert(internalTree, map);// reinsert into the tree
+      }
+      
+      characterTree=(pQueue.remove());
+
+      // get the string representation of the tree
+      treeString=characterTree.makeTreeString(characterTree.getRoot());
+      System.out.println(treeString);
+      
+      // write to file
+      FileInputStream input = null;
+      FileOutputStream out = null;
+
+        try {
+            in = new FileInputStream(inputFileName);
+            out = new FileOutputStream(outputFileName);
+            
+            int d;
+            String temp2;
+            String dataPrintOut;
+
+            out.write(inputFileName.getBytes());// print file name and extension
+            out.write(treeString.getBytes());// print tree
+            
+            while ((d = in.read()) != -1) {
+              
+              temp2= Integer.valueOf(d).toString();// convert to string
+              dataPrintOut=characterTree.getPath(temp2,characterTree.getRoot());// encode
+              System.out.println(".");
+              out.write(dataPrintOut.getBytes());// write to file
+              
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+      
+     
+    }// end of main
+
+}// end of class
+
+

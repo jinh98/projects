@@ -1,0 +1,10 @@
+public class Data impliments Comparable <Data>{
+  private String str;
+  private int frequency;
+  
+  public Data (String s, int f){
+    str=s;
+    frequency=f;
+  }
+
+}
